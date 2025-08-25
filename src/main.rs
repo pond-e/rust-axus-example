@@ -60,8 +60,11 @@ struct FormData {
 // }
 
 async fn create_pool() -> Result<SqlitePool, sqlx::Error> {
-    dotenv::dotenv().expect("Failed to read .env file");
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    // .env fileがない場合はスキップ
+    dotenv::dotenv().ok();
+    
+    // DATABASE_URLが設定されていない場合はデフォルト値を使用
+    let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "sqlite:./database.db".to_string());
     let pool = SqlitePool::connect(&database_url).await?;
     Ok(pool)
 }
